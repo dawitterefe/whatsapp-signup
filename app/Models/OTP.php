@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class OTP extends Model
+class Otp extends Model
 {
     use HasFactory;
 
@@ -15,7 +15,7 @@ class OTP extends Model
 
     const UPDATED_AT = null;
 
-    // OTP expires after 5 minutes
+    // OTP expires after 5 min
     public function isExpired()
     {
         return $this->created_at->diffInMinutes(now()) > 5;

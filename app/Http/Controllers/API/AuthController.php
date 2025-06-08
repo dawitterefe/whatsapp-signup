@@ -8,6 +8,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Twilio\Rest\Client;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+
 
 class AuthController extends Controller
 {
@@ -28,12 +30,13 @@ class AuthController extends Controller
             // Send OTP via Twilio WhatsApp
             $twilio = new Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'));
             $twilio->messages->create(
-                env('TWILIO_WHATSAPP_NUMBER'),
+                'whatsapp:' . $phoneNumber,
                 [
-                    'from' => env('TWILIO_WHATSAPP_NUMBER'),
+                    'from' => 'whatsapp:+14155238886',
                     'body' => "Your signup OTP is $otp. It expires in 5 minutes.",
                 ]
             );
+
 
             return response()->json(['message' => 'OTP sent to WhatsApp']);
         } catch (\Exception $e) {
@@ -59,10 +62,13 @@ class AuthController extends Controller
             return response()->json(['error' => 'Invalid or expired OTP'], 400);
         }
 
-        // Check if user exists, else create
+        Log::info('Creating user with:', [
+            'phone_number' => $request->phone_number,
+        ]);
+
         $user = User::firstOrCreate(
             ['phone_number' => $request->phone_number],
-            ['name' => 'User', 'email' => null, 'password' => bcrypt(str_random(16))]
+            ['name' => 'User', 'email' => null, 'password' => bcrypt(Str::random(16))]
         );
 
         // Delete OTP
